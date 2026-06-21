@@ -35,7 +35,7 @@
 ### Blocked
 - Supabase direct DB connection (`db.ejoscvxmctrqhayeyerj.supabase.co` + pooler) does not resolve DNS from this machine. `exec_sql` RPC not installed. **User must run combined migration SQL in Supabase Dashboard** (`supabase/migrations/combined_remaining.sql` → paste at `https://supabase.com/dashboard/project/ejoscvxmctrqhayeyerj/sql/new`).
 - `NEXT_PUBLIC_SENTRY_DSN` empty — user must create Sentry project at https://sentry.io and add DSN to `.env.local` + Vercel env vars.
-- GitHub CI/CD secrets not configured — user must add `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` to GitHub repo secrets.
+- GitHub CI/CD secrets not configured — user must add 5 secrets (`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`, `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`) to GitHub repo secrets.
 
 ## Key Decisions
 - **Table reuse**: No separate `canvas_projects`/`canvas_layers` tables. Existing `designs` serves as project container via `project_type` column.
@@ -47,11 +47,13 @@
 ## Next Steps (manual — blocked from CLI)
 1. **Run SQL**: Paste `supabase/migrations/combined_remaining.sql` into Supabase Dashboard at `https://supabase.com/dashboard/project/ejoscvxmctrqhayeyerj/sql/new`
 2. **Sentry**: Create project at https://sentry.io, copy DSN, set `NEXT_PUBLIC_SENTRY_DSN` in `.env.local` and Vercel env vars (`vercel env add NEXT_PUBLIC_SENTRY_DSN`)
-3. **GitHub secrets**: Add these to https://github.com/editsuite/beetreez-designes/settings/secrets/actions:
+3. **GitHub secrets**: Add these to https://github.com/makhosipro-coder/beetreez-designes/settings/secrets/actions:
    - `VERCEL_TOKEN` — create at https://vercel.com/account/tokens
    - `VERCEL_ORG_ID` = `team_vaWfxCpVukuu0j3hx7WYCaLR`
    - `VERCEL_PROJECT_ID` = `prj_nmtosiAjycINbrXS4KBM3L5Ab3Bk`
-4. **Re-deploy**: Push to main after migrations applied and secrets added
+   - `SUPABASE_ACCESS_TOKEN` — create at https://supabase.com/dashboard/account/tokens
+   - `SUPABASE_DB_PASSWORD` — the postgres password for this project (set at creation time, can be reset in project settings → Database → Reset password)
+4. **Re-deploy**: Trigger the Migrate Database workflow in GitHub Actions, or paste SQL into Supabase Dashboard. Then push to main for auto-deploy.
 
 ## Critical Context
 - **Node v20.20.2**, Apple Silicon ARM64. node_modules symlinked from `/tmp/design-studio-node`.
