@@ -2,24 +2,19 @@ name: Migrate Database
 
 on:
   workflow_dispatch:
-    inputs:
-      sql_file:
-        description: 'SQL file to run'
-        default: 'supabase/migrations/combined_remaining.sql'
-        required: true
 
 jobs:
   migrate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
-      - name: Run SQL migration
+      - name: Run SQL migration via psql
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
-          supabase link --project-ref ejoscvxmctrqhayeyerj
-          supabase db execute --file "${{ inputs.sql_file }}"
+          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql \
+            -h db.ejoscvxmctrqhayeyerj.supabase.co \
+            -p 5432 \
+            -U postgres \
+            -d postgres \
+            -f supabase/migrations/combined_remaining.sql
