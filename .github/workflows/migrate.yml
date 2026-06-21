@@ -12,8 +12,23 @@ jobs:
         env:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
+          # Try pooler (transaction mode) with DB password
           PGPASSWORD="$SUPABASE_DB_PASSWORD" psql \
-            -h db.ejoscvxmctrqhayeyerj.supabase.co \
+            -h aws-0-us-west-1.pooler.supabase.com \
+            -p 6543 \
+            -U "postgres.ejoscvxmctrqhayeyerj" \
+            -d postgres \
+            -f supabase/migrations/combined_remaining.sql || \
+          # Try pooler (session mode) with DB password
+          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql \
+            -h aws-0-us-west-1.pooler.supabase.com \
+            -p 5432 \
+            -U "postgres.ejoscvxmctrqhayeyerj" \
+            -d postgres \
+            -f supabase/migrations/combined_remaining.sql || \
+          # Try direct with IPv4 forced (no DNS)
+          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql \
+            -h "db.ejoscvxmctrqhayeyerj.supabase.co" \
             -p 5432 \
             -U postgres \
             -d postgres \
